@@ -5,36 +5,364 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Koperasi JSP</title>
   <link rel="icon" href="https://cdn.iconscout.com/icon/premium/png-256-thumb/academy-1-111832.png" type="image/x-icon">
-  <style>
-    html, body {
-      margin: 0;
-      padding: 0;
-      height: 100%;
+    <style>
+    /* ================= GENERAL ================= */
+    body {
+      background: #f0f2f5;
+      color: #333;
       overflow: hidden;
-      font-family: sans-serif;
+      transition: background-color 0.3s, color 0.3s;
     }
 
-    .iframe-container {
-      position: relative;
-      width: 100%;
+    .wrapper {
+      display: flex;
+      flex-direction: row;
       height: 100vh;
+      position: relative;
+    }
+    @media (max-width: 768px) {
+      .wrapper {
+        flex-direction: column;
+      }
     }
 
-    iframe {
-      width: 100%;
+    /* ================= DARK MODE ================= */
+    .dark-mode {
+      background: #121212;
+      color: #e0e0e0;
+    }
+    .dark-mode .card-data,
+    .dark-mode .sidebar,
+    .dark-mode .bottom-menu,
+    .dark-mode .login-form-side {
+      background-color: #333;
+      color: white;
+    }
+    .dark-mode .sidebar a,
+    .dark-mode .bottom-menu a,
+    .dark-mode .toggle-btn {
+      color: white;
+    }
+    .dark-mode .sidebar a:hover,
+    .dark-mode .bottom-menu a:hover {
+      background-color: #444;
+    }
+    .dark-mode .btn-login,
+    .dark-mode .btn-login:hover {
+      background-color: #007bff;
+      color: white;
+    }
+    .dark-mode .btn-login:hover {
+      background-color: #0056b3;
+    }
+    .dark-mode .bottom-menu {
+      background: #2c2f36;
+      border-top: 1px solid #444;
+      box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.6);
+    }
+    .dark-mode .bottom-menu a.active::after {
+      background-color: #4da3ff;
+    }
+    .dark-mode .login-form-side .form-label {
+      color: #ddd;
+    }
+
+    /* ================= SIDEBAR ================= */
+    .sidebar {
+      width: 250px;
       height: 100%;
-      border: none;
+      background-color: #3a3f47;
+      color: white;
+      transition: width 0.3s;
+    }
+    .sidebar.collapsed {
+      width: 60px;
+    }
+    .sidebar a {
+      display: flex;
+      align-items: center;
+      padding: 12px 20px;
+      color: white;
+      text-decoration: none;
+      transition: background-color 0.3s;
+    }
+    .sidebar a:hover,
+    .sidebar a.active {
+      background-color: #444;
+    }
+    .sidebar i {
+      margin-right: 10px;
+      min-width: 20px;
+      text-align: center;
+    }
+    .sidebar.collapsed a span {
+      display: none;
+    }
+    @media (max-width: 768px) {
+      .sidebar,
+      .toggle-btn {
+        display: none !important;
+      }
     }
 
-    .loader {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      font-size: 1.2rem;
-      color: #666;
-      z-index: 10;
+    /* ================= MAIN CONTENT ================= */
+    .main-content {
+      flex: 1;
+      padding: 20px;
+      height: 100vh;
+      overflow: hidden;
+      transition: margin-left 0.3s;
     }
+    @media (max-width: 768px) {
+      .main-content {
+        overflow-y: auto;
+        padding-top: 60px;
+      }
+    }
+
+    /* ================= TOGGLE BUTTON ================= */
+    .toggle-btn {
+      background: none;
+      border: none;
+      font-size: 24px;
+      transition: color 0.3s;
+    }
+    @media (max-width: 768px) {
+      .toggle-btn {
+        position: fixed;
+        top: 20px;
+        left: 20px;
+        z-index: 1100;
+      }
+    }
+
+    /* ================= LOGIN CARD ================= */
+    .data-container {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .card-data {
+      padding: 2rem;
+      border-radius: 1rem;
+      box-shadow: 0 0 30px rgba(0, 0, 0, 0.2);
+      height: 100%;
+    }
+
+    .login-form-side {
+      background-color: #f8f9fa;
+      transition: background-color 0.3s, color 0.3s;
+    }
+
+    /* ================= DARK MODE TOGGLE BUTTON ================= */
+    .btn-dark-mode {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background-color: #333;
+      color: white;
+      border: none;
+      padding: 8px 12px;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      cursor: pointer;
+      transition: all 0.3s ease;
+      z-index: 1002;
+    }
+    @media (max-width: 768px) {
+      .btn-dark-mode {
+        bottom: 100px;
+      }
+    }
+    .btn-dark-mode:hover {
+      background-color: #444;
+      transform: scale(1.05);
+    }
+    .btn-dark-mode i {
+      font-size: 1.2rem;
+    }
+
+    /* ================= USER INFO ================= */
+    #userInfo {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      font-size: 1rem;
+      z-index: 999;
+    }
+    #userInfo span {
+      font-weight: bold;
+    }
+
+    /* ================= CONTENT AREA ================= */
+    #contentArea {
+      max-height: 100vh;
+      overflow-y: Auto;
+      padding-bottom: 40px;
+    }
+
+    /* ================= BOTTOM MENU ================= */
+    .bottom-menu {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 65px;
+      background: #fff;
+      border-top: 1px solid #ddd;
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      z-index: 1001;
+      box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.1);
+      padding: 0 10px;
+      border-radius: 16px 16px 0 0;
+      transition: background-color 0.3s, box-shadow 0.3s;
+    }
+    .bottom-menu a {
+      flex: 1;
+      text-align: center;
+      text-decoration: none;
+      color: #555;
+      font-size: 12px;
+      padding-top: 6px;
+      transition: all 0.2s;
+      position: relative;
+    }
+    .bottom-menu a i {
+      display: block;
+      font-size: 20px;
+      margin-bottom: 4px;
+      transition: transform 0.3s;
+    }
+    .bottom-menu a:hover i,
+    .bottom-menu a.active i {
+      transform: scale(1.2);
+      color: #ff4d4d;
+    }
+    .bottom-menu a:hover,
+    .bottom-menu a.active {
+      color: #ff4d4d;
+    }
+    .bottom-menu a::after {
+      content: '';
+      display: block;
+      width: 6px;
+      height: 6px;
+      margin: 4px auto 0;
+      border-radius: 50%;
+      background-color: transparent;
+      transition: background-color 0.3s;
+    }
+    .bottom-menu a.active::after {
+      background-color: #ff4d4d;
+    }
+
+/*tambah pinjaman*/
+.alert {
+    animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Tambahan style untuk input readonly */
+input[readonly] {
+    background-color: #f8f9fa;
+    cursor: not-allowed;
+}
+/*CSS approve*/
+status-badge {
+      font-size: 0.875em;
+      padding: 0.25em 0.6em;
+      border-radius: 0.25rem;
+    }
+    .status-pending { background-color: #ffc107; color: #000; }
+    .status-approved { background-color: #198754; color: #fff; }
+    .status-rejected { background-color: #dc3545; color: #fff;
+
+/* CSS Tambahan ubahprofile*/
+.card-data {
+    border: none;
+    border-radius: 10px;
+}
+
+.form-label {
+    font-weight: 500;
+    color: #555;
+}
+
+.form-control {
+    border-radius: 5px;
+}
+
+.form-control:focus {
+    border-color: #80bdff;
+    box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
+}
+
+.btn {
+    border-radius: 5px;
+    padding: 8px 20px;
+}
+
+.modal-header {
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.input-group-text {
+    background-color: transparent;
+}
+
+#username_id {
+    background-color: #f8f9fa;
+    cursor: not-allowed;
+}
+
+/*foto profil*/
+.profile-section {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.profile-image-container {
+  position: relative;
+  display: inline-block;
+  margin-bottom: 1rem;
+}
+
+.profile-image {
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.photo-upload-btn {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  background: var(--bs-primary);
+  color: white;
+  border-radius: 50%;
+  padding: 0.5rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.photo-upload-btn:hover {
+  transform: scale(1.1);
+}
+
+.profile-info {
+  max-width: 400px;
+  margin: 0 auto;
+}
+
   </style>
 </head>
 <body>
